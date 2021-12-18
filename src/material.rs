@@ -71,7 +71,7 @@ impl Material {
             }
         }
 
-        return true;
+        true
     }
 }
 

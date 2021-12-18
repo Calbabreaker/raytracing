@@ -11,7 +11,7 @@ pub struct RenderingData {
 }
 
 pub fn start_render(scene: Arc<Scene>) -> RenderingData {
-    println!("Rendering with {} threads...", scene.render_threads);
+    println!("Rendering with {} samples, {} threads...", scene.samples_per_pixel, scene.render_threads);
 
     let screen_dim = glam::uvec2(scene.width, scene.height);
     let max_tiles = (screen_dim.as_vec2() / scene.render_tile_size as f32)
@@ -77,7 +77,7 @@ fn sample_pixel(x: u32, y: u32, scene: &Scene) -> image::Rgb<u8> {
     image::Rgb([r, g, b])
 }
 
-fn ray_color(objects: &Vec<Object>, ray: &mut Ray, max_bounces: u32) -> glam::Vec3A {
+fn ray_color(objects: &[Object], ray: &mut Ray, max_bounces: u32) -> glam::Vec3A {
     let mut attenuation = glam::Vec3A::ONE;
     let mut bounces_left = max_bounces;
 
@@ -87,7 +87,7 @@ fn ray_color(objects: &Vec<Object>, ray: &mut Ray, max_bounces: u32) -> glam::Ve
         }
 
         let mut hit_info = HitInfo::empty();
-        if ray_cast(&ray, 0.01, 1000.0, objects, &mut hit_info) {
+        if ray_cast(ray, 0.01, 1000.0, objects, &mut hit_info) {
             if !hit_info
                 .material
                 .unwrap()
@@ -115,15 +115,15 @@ fn ray_cast<'a>(
     ray: &Ray,
     dist_min: f32,
     dist_max: f32,
-    objects: &'a Vec<Object>,
+    objects: &'a [Object],
     hit_info: &mut HitInfo<'a>,
 ) -> bool {
     let mut closest_dist = dist_max;
     for object in objects {
-        if object.ray_intersect(&ray, dist_min, closest_dist, hit_info) {
+        if object.ray_intersect(ray, dist_min, closest_dist, hit_info) {
             closest_dist = hit_info.dist;
         }
     }
 
-    return closest_dist != dist_max;
+    closest_dist != dist_max
 }

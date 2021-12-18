@@ -59,6 +59,6 @@ impl Object {
         }
 
         hit_info.material = Some(&self.material);
-        return true;
+        true
     }
 }

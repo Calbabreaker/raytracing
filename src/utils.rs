@@ -12,7 +12,7 @@ impl Ray {
     }
 
     pub fn at(&self, dist: f32) -> glam::Vec3A {
-        return self.origin + dist * self.direction;
+        self.origin + dist * self.direction
     }
 }
 
@@ -66,10 +66,10 @@ impl Camera {
         let random_disk = self.lens_radius * random_in_unit_disk();
         let offset = self.u * random_disk.x + self.v * random_disk.y;
 
-        return Ray::new(
+        Ray::new(
             self.origin + offset,
             self.lower_left_corner + u * self.horizontal + v * self.vertical - self.origin - offset,
-        );
+        )
     }
 }
 
@@ -97,23 +97,23 @@ pub fn random_unit_vector() -> glam::Vec3A {
 
 pub fn near_zero(vector: glam::Vec3A) -> bool {
     const EPSILON: f32 = 0.01;
-    return vector.length_squared() < EPSILON.powi(2);
+    vector.length_squared() < EPSILON.powi(2)
 }
 
 pub fn reflect(vector: glam::Vec3A, normal: glam::Vec3A) -> glam::Vec3A {
-    return vector - 2.0 * vector.dot(normal) * normal;
+    vector - 2.0 * vector.dot(normal) * normal
 }
 
 pub fn refract(vector: glam::Vec3A, normal: glam::Vec3A, etai_over_etat: f32) -> glam::Vec3A {
     let cos_theta = (-vector).dot(normal).min(1.0);
     let r_out_perp = etai_over_etat * (vector + cos_theta * normal);
     let r_out_parallel = (1.0 - r_out_perp.length_squared()).abs().sqrt() * -normal;
-    return r_out_perp + r_out_parallel;
+    r_out_perp + r_out_parallel
 }
 
 // Uses Schlick's approximation for reflectance
 pub fn reflectance(cosine: f32, refraction_index: f32) -> f32 {
     let mut r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
     r0 = r0.powi(2);
-    return r0 + (1.0 - r0) * (1.0 - cosine).powi(5);
+    r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
 }
