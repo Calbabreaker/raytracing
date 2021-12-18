@@ -1,0 +1,11 @@
+[package]
+name = "raytracing"
+version = "0.0.0"
+edition = "2021"
+authors = ["Calbabreaker <calbabreaker@gmail.com>"]
+
+[dependencies]
+glam = "0.20.1"
+rand = "0.8.4"
+num_cpus = "1.13.0"
+image = "0.23.14"
