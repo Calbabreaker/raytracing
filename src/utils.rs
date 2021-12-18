@@ -1,18 +1,9 @@
-use rand::Rng;
-
 pub struct Ray {
     pub origin: glam::Vec3A,
     pub direction: glam::Vec3A,
 }
 
 impl Ray {
-    pub fn empty() -> Self {
-        Ray {
-            origin: glam::Vec3A::ZERO,
-            direction: glam::Vec3A::ZERO,
-        }
-    }
-
     pub fn new(origin: glam::Vec3A, direction: glam::Vec3A) -> Self {
         Ray {
             origin,
@@ -82,10 +73,13 @@ impl Camera {
     }
 }
 
+pub fn random_f32r(min: f32, max: f32) -> f32 {
+    min + (max - min) * fastrand::f32()
+}
+
 pub fn random_in_unit_disk() -> glam::Vec2 {
     loop {
-        let mut rng = rand::thread_rng();
-        let point = glam::vec2(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0));
+        let point = glam::vec2(random_f32r(-1.0, 1.0), random_f32r(-1.0, 1.0));
         if point.length_squared() < 1.0 {
             return point;
         }
@@ -93,11 +87,10 @@ pub fn random_in_unit_disk() -> glam::Vec2 {
 }
 
 pub fn random_unit_vector() -> glam::Vec3A {
-    let mut rng = rand::thread_rng();
     glam::vec3a(
-        rng.gen_range(-1.0..1.0),
-        rng.gen_range(-1.0..1.0),
-        rng.gen_range(-1.0..1.0),
+        random_f32r(-1.0, 1.0),
+        random_f32r(-1.0, 1.0),
+        random_f32r(-1.0, 1.0),
     )
     .normalize()
 }

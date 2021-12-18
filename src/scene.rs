@@ -24,7 +24,7 @@ impl Scene {
             camera: Camera::new(),
             objects: Vec::new(),
             samples_per_pixel: 32,
-            max_ray_bounces: 50,
+            max_ray_bounces: 32,
             render_tile_size: 128,
             render_threads: num_cpus::get() as u32,
             width: 0,

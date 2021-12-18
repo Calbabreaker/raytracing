@@ -3,12 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{
-    material::{HitInfo, ScatterInfo},
-    object::Object,
-    scene::Scene,
-    utils::Ray,
-};
+use crate::{material::HitInfo, object::Object, scene::Scene, utils::Ray};
 
 pub struct RenderingData {
     pub image: Arc<Mutex<image::RgbImage>>,
@@ -42,12 +37,15 @@ pub fn start_render(scene: Arc<Scene>) -> RenderingData {
 
             *tile_index_mut.lock().unwrap() += 1;
 
-            print!("\rRendering tile: {}/{}      ", tile_index, total_tiles);
-            std::io::stdout().flush().unwrap();
-
             let start_tile = glam::uvec2(tile_index % max_tiles.x, tile_index / max_tiles.x);
             let start_pos = start_tile * scene.render_tile_size;
             let end_pos = ((start_tile + 1) * scene.render_tile_size).min(screen_dim);
+
+            print!(
+                "\rRendering tile: {}/{} at {}     ",
+                tile_index, total_tiles, start_pos
+            );
+            std::io::stdout().flush().unwrap();
 
             for x in start_pos.x..end_pos.x {
                 for y in start_pos.y..end_pos.y {
@@ -64,11 +62,11 @@ pub fn start_render(scene: Arc<Scene>) -> RenderingData {
 fn sample_pixel(x: u32, y: u32, scene: &Scene) -> image::Rgb<u8> {
     let mut color = glam::Vec3A::ZERO;
     for _ in 0..scene.samples_per_pixel {
-        let u = (x as f32 + rand::random::<f32>()) / (scene.width - 1) as f32;
-        let v = (y as f32 + rand::random::<f32>()) / (scene.height - 1) as f32;
+        let u = (x as f32 + fastrand::f32()) / (scene.width - 1) as f32;
+        let v = (y as f32 + fastrand::f32()) / (scene.height - 1) as f32;
 
-        let ray = scene.camera.get_ray(u, v);
-        color += ray_color(&scene.objects, &ray, scene.max_ray_bounces);
+        let mut ray = scene.camera.get_ray(u, v);
+        color += ray_color(&scene.objects, &mut ray, scene.max_ray_bounces);
     }
 
     // take the average of all the slightly differing rays of all the samples
@@ -79,30 +77,38 @@ fn sample_pixel(x: u32, y: u32, scene: &Scene) -> image::Rgb<u8> {
     image::Rgb([r, g, b])
 }
 
-fn ray_color(objects: &Vec<Object>, ray: &Ray, bounces_left: u32) -> glam::Vec3A {
-    if bounces_left == 0 {
-        return glam::Vec3A::ZERO;
-    }
+fn ray_color(objects: &Vec<Object>, ray: &mut Ray, max_bounces: u32) -> glam::Vec3A {
+    let mut attenuation = glam::Vec3A::ONE;
+    let mut bounces_left = max_bounces;
 
-    let mut hit_info = HitInfo::empty();
-    if ray_cast(&ray, 0.01, 1000.0, objects, &mut hit_info) {
-        let mut scatter_info = ScatterInfo::empty();
-        if hit_info
-            .material
-            .unwrap()
-            .scatter(ray, &hit_info, &mut scatter_info)
-        {
-            return scatter_info.color * ray_color(objects, &scatter_info.ray, bounces_left - 1);
-        } else {
+    loop {
+        if bounces_left == 0 {
             return glam::Vec3A::ZERO;
         }
+
+        let mut hit_info = HitInfo::empty();
+        if ray_cast(&ray, 0.01, 1000.0, objects, &mut hit_info) {
+            if !hit_info
+                .material
+                .unwrap()
+                .scatter(ray, &hit_info, &mut attenuation)
+            {
+                return glam::Vec3A::ZERO;
+            }
+        } else {
+            // add skybox light color
+            const SKYBOX_COLOR_TOP: glam::Vec3A = glam::const_vec3a!([0.5, 0.7, 1.0]);
+            const SKYBOX_COLOR_BOTTOM: glam::Vec3A = glam::const_vec3a!([1.0, 1.0, 1.0]);
+
+            let color_scale = (ray.direction.y + 1.0) / 2.0;
+            attenuation *= SKYBOX_COLOR_BOTTOM.lerp(SKYBOX_COLOR_TOP, color_scale);
+            break;
+        }
+
+        bounces_left -= 1;
     }
 
-    const SKYBOX_COLOR_TOP: glam::Vec3A = glam::const_vec3a!([0.5, 0.7, 1.0]);
-    const SKYBOX_COLOR_BOTTOM: glam::Vec3A = glam::const_vec3a!([1.0, 1.0, 1.0]);
-
-    let color_scale = (ray.direction.y + 1.0) / 2.0;
-    SKYBOX_COLOR_BOTTOM.lerp(SKYBOX_COLOR_TOP, color_scale)
+    attenuation
 }
 
 fn ray_cast<'a>(

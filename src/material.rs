@@ -21,7 +21,12 @@ impl Material {
     }
 
     // returns true if valid scatter
-    pub fn scatter(&self, ray: &Ray, hit_info: &HitInfo, scatter_info: &mut ScatterInfo) -> bool {
+    pub fn scatter(
+        &self,
+        ray: &mut Ray,
+        hit_info: &HitInfo,
+        attenuation: &mut glam::Vec3A,
+    ) -> bool {
         match self {
             Material::Diffuse { albedo } => {
                 let mut direction = hit_info.normal + random_unit_vector();
@@ -30,20 +35,20 @@ impl Material {
                     direction = hit_info.normal;
                 }
 
-                scatter_info.ray = Ray::new(hit_info.point, direction);
-                scatter_info.color = *albedo;
+                *ray = Ray::new(hit_info.point, direction);
+                *attenuation *= *albedo;
             }
 
             Material::Metal { albedo, fuzziness } => {
                 let direction = reflect(ray.direction, hit_info.normal);
                 let fuzz_vec = *fuzziness * random_unit_vector();
-                scatter_info.ray = Ray::new(hit_info.point, direction + fuzz_vec);
-                scatter_info.color = *albedo;
-                return scatter_info.ray.direction.dot(hit_info.normal) > 0.0;
+
+                *ray = Ray::new(hit_info.point, direction + fuzz_vec);
+                *attenuation *= *albedo;
+                return ray.direction.dot(hit_info.normal) > 0.0;
             }
 
             Material::Dielectric { refraction_index } => {
-                scatter_info.color = glam::Vec3A::ONE;
                 let refraction_ratio = if hit_info.is_front_face {
                     refraction_index.recip()
                 } else {
@@ -54,8 +59,7 @@ impl Material {
                 let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
 
                 let cannot_refract = refraction_ratio * sin_theta > 1.0;
-                let should_reflect =
-                    reflectance(cos_theta, refraction_ratio) > rand::random::<f32>();
+                let should_reflect = reflectance(cos_theta, refraction_ratio) > fastrand::f32();
 
                 let direction = if cannot_refract || should_reflect {
                     reflect(ray.direction, hit_info.normal)
@@ -63,25 +67,11 @@ impl Material {
                     refract(ray.direction, hit_info.normal, refraction_ratio)
                 };
 
-                scatter_info.ray = Ray::new(hit_info.point, direction);
+                *ray = Ray::new(hit_info.point, direction);
             }
         }
 
         return true;
-    }
-}
-
-pub struct ScatterInfo {
-    pub ray: Ray,
-    pub color: glam::Vec3A,
-}
-
-impl ScatterInfo {
-    pub fn empty() -> Self {
-        ScatterInfo {
-            ray: Ray::empty(),
-            color: glam::Vec3A::ZERO,
-        }
     }
 }
 
