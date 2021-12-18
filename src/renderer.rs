@@ -13,8 +13,6 @@ use crate::{
 pub struct RenderingData {
     pub image: Arc<Mutex<image::RgbImage>>,
     pub threads: Vec<std::thread::JoinHandle<()>>,
-    pub tile_index: Arc<Mutex<u32>>,
-    pub total_tiles: u32,
 }
 
 pub fn start_render(scene: Arc<Scene>) -> RenderingData {
@@ -53,19 +51,14 @@ pub fn start_render(scene: Arc<Scene>) -> RenderingData {
 
             for x in start_pos.x..end_pos.x {
                 for y in start_pos.y..end_pos.y {
-                    let pixel = sample_pixel(x, y, &scene);
+                    let pixel = sample_pixel(x, scene.height - y, &scene);
                     image.lock().unwrap().put_pixel(x, y, pixel);
                 }
             }
         }))
     }
 
-    RenderingData {
-        image,
-        threads,
-        tile_index: tile_index_mut,
-        total_tiles,
-    }
+    RenderingData { image, threads }
 }
 
 fn sample_pixel(x: u32, y: u32, scene: &Scene) -> image::Rgb<u8> {
@@ -79,7 +72,7 @@ fn sample_pixel(x: u32, y: u32, scene: &Scene) -> image::Rgb<u8> {
     }
 
     // take the average of all the slightly differing rays of all the samples
-    color = color / scene.samples_per_pixel as f32;
+    color /= scene.samples_per_pixel as f32;
     let r = (255.0 * color.x.sqrt()) as u8;
     let g = (255.0 * color.y.sqrt()) as u8;
     let b = (255.0 * color.z.sqrt()) as u8;
