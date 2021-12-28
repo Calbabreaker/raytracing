@@ -11,7 +11,10 @@ pub struct RenderingData {
 }
 
 pub fn start_render(scene: Arc<Scene>) -> RenderingData {
-    println!("Rendering with {} samples, {} threads...", scene.samples_per_pixel, scene.render_threads);
+    println!(
+        "Rendering with {} samples, {} threads...",
+        scene.samples_per_pixel, scene.render_threads
+    );
 
     let screen_dim = glam::uvec2(scene.width, scene.height);
     let max_tiles = (screen_dim.as_vec2() / scene.render_tile_size as f32)
@@ -86,7 +89,7 @@ fn ray_color(objects: &[Object], ray: &mut Ray, max_bounces: u32) -> glam::Vec3A
             return glam::Vec3A::ZERO;
         }
 
-        let mut hit_info = HitInfo::empty();
+        let mut hit_info = HitInfo::default();
         if ray_cast(ray, 0.01, 1000.0, objects, &mut hit_info) {
             if !hit_info
                 .material

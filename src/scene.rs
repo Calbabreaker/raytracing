@@ -12,12 +12,6 @@ pub struct Scene {
     pub height: u32,
 }
 
-impl std::fmt::Debug for Scene {
-    fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        unimplemented!()
-    }
-}
-
 impl Scene {
     pub fn new() -> Self {
         Scene {

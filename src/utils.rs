@@ -16,6 +16,7 @@ impl Ray {
     }
 }
 
+#[derive(Default)]
 pub struct Camera {
     pub origin: glam::Vec3A,
     pub lookat: glam::Vec3A,
@@ -32,19 +33,10 @@ pub struct Camera {
 
 impl Camera {
     pub fn new() -> Self {
-        Camera {
-            origin: glam::Vec3A::ZERO,
-            lookat: glam::Vec3A::X,
-            lens_radius: 0.0,
-            fov: 40.0,
-            aspect_ratio: 0.0,
-
-            u: glam::Vec3A::ZERO,
-            v: glam::Vec3A::ZERO,
-            horizontal: glam::Vec3A::ZERO,
-            vertical: glam::Vec3A::ZERO,
-            lower_left_corner: glam::Vec3A::ZERO,
-        }
+        let mut camera = Self::default();
+        camera.fov = 40.0;
+        camera.lookat = glam::Vec3A::X;
+        camera
     }
 
     pub fn update(&mut self) {

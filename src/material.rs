@@ -75,6 +75,7 @@ impl Material {
     }
 }
 
+#[derive(Default)]
 pub struct HitInfo<'a> {
     pub point: glam::Vec3A,
     pub normal: glam::Vec3A,
@@ -84,16 +85,6 @@ pub struct HitInfo<'a> {
 }
 
 impl HitInfo<'_> {
-    pub fn empty() -> HitInfo<'static> {
-        HitInfo {
-            point: glam::Vec3A::ZERO,
-            normal: glam::Vec3A::ZERO,
-            dist: 0.0,
-            is_front_face: false,
-            material: None,
-        }
-    }
-
     pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: glam::Vec3A) {
         self.is_front_face = ray.direction.dot(outward_normal) < 0.0;
         self.normal = if self.is_front_face {
