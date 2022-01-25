@@ -19,35 +19,47 @@ fn main() {
     scene.viewport_resize(1280, 720);
     scene.camera.update();
 
-    scene.add_object(Object::sphere(
-        glam::vec3a(0.0, -100.5, 0.0),
-        100.0,
-        Material::diffuse(glam::vec3a(0.0, 0.7, 0.5)),
-    ));
+    scene.add_object(Object::Sphere {
+        origin: glam::vec3a(0.0, -100.5, 0.0),
+        radius: 100.0,
+        material: Material::Diffuse {
+            albedo: glam::vec3a(0.0, 0.7, 0.5),
+        },
+    });
 
-    scene.add_object(Object::sphere(
-        glam::vec3a(0.0, 0.0, -1.0),
-        0.5,
-        Material::diffuse(glam::vec3a(0.5, 0.5, 0.8)),
-    ));
+    scene.add_object(Object::Sphere {
+        origin: glam::vec3a(0.0, 0.0, -1.0),
+        radius: 0.5,
+        material: Material::Diffuse {
+            albedo: glam::vec3a(0.5, 0.5, 0.8),
+        },
+    });
 
-    scene.add_object(Object::sphere(
-        glam::vec3a(-1.0, 0.0, -1.0),
-        0.5,
-        Material::dieletric(1.5),
-    ));
+    scene.add_object(Object::Sphere {
+        origin: glam::vec3a(-1.0, 0.0, -1.0),
+        radius: 0.5,
+        material: Material::Dielectric {
+            refraction_index: 1.5,
+        },
+    });
 
-    scene.add_object(Object::sphere(
-        glam::vec3a(1.0, 0.0, -1.0),
-        0.5,
-        Material::metal(glam::vec3a(0.5, 0.4, 0.2), 0.0),
-    ));
+    scene.add_object(Object::Sphere {
+        origin: glam::vec3a(1.0, 0.0, -1.0),
+        radius: 0.5,
+        material: Material::Metal {
+            albedo: glam::vec3a(0.5, 0.4, 0.2),
+            fuzziness: 0.0,
+        },
+    });
 
-    scene.add_object(Object::sphere(
-        glam::vec3a(-0.5, 0.0, -2.0),
-        0.5,
-        Material::metal(glam::vec3a(0.3, 0.2, 0.5), 0.8),
-    ));
+    scene.add_object(Object::Sphere {
+        origin: glam::vec3a(-0.5, 0.0, -2.0),
+        radius: 0.5,
+        material: Material::Metal {
+            albedo: glam::vec3a(0.3, 0.2, 0.5),
+            fuzziness: 0.8,
+        },
+    });
 
     let start_time = std::time::Instant::now();
     let data = start_render(Arc::new(scene));

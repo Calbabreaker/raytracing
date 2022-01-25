@@ -3,24 +3,15 @@ use crate::{
     utils::Ray,
 };
 
-#[derive(PartialEq)]
-pub enum ObjectData {
-    Sphere { origin: glam::Vec3A, radius: f32 },
-}
-
-pub struct Object {
-    material: Material,
-    data: ObjectData,
+pub enum Object {
+    Sphere {
+        origin: glam::Vec3A,
+        radius: f32,
+        material: Material,
+    },
 }
 
 impl Object {
-    pub fn sphere(origin: glam::Vec3A, radius: f32, material: Material) -> Self {
-        Self {
-            data: ObjectData::Sphere { origin, radius },
-            material,
-        }
-    }
-
     // returns true if ray hits object
     pub fn ray_intersect<'a>(
         &'a self,
@@ -29,9 +20,13 @@ impl Object {
         dist_max: f32,
         hit_info: &mut HitInfo<'a>,
     ) -> bool {
-        match self.data {
-            ObjectData::Sphere { origin, radius } => {
-                let oc = ray.origin - origin;
+        match self {
+            Object::Sphere {
+                origin,
+                radius,
+                material,
+            } => {
+                let oc = ray.origin - *origin;
                 let a = ray.direction.length_squared();
                 let half_b = oc.dot(ray.direction);
                 let c = oc.length_squared() - radius.powi(2);
@@ -53,12 +48,11 @@ impl Object {
                 }
 
                 hit_info.point = ray.at(hit_info.dist);
-                let outward_normal = (hit_info.point - origin) / radius;
+                let outward_normal = (hit_info.point - *origin) / *radius;
                 hit_info.set_face_normal(ray, outward_normal);
+                hit_info.material = Some(material);
             }
         }
-
-        hit_info.material = Some(&self.material);
         true
     }
 }

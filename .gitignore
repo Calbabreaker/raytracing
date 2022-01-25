@@ -1,4 +1,4 @@
 /target
-output.png
+output*
 flamegraph.svg
 perf.*

@@ -8,18 +8,6 @@ pub enum Material {
 }
 
 impl Material {
-    pub fn diffuse(albedo: glam::Vec3A) -> Self {
-        Self::Diffuse { albedo }
-    }
-
-    pub fn metal(albedo: glam::Vec3A, fuzziness: f32) -> Self {
-        Self::Metal { albedo, fuzziness }
-    }
-
-    pub fn dieletric(refraction_index: f32) -> Self {
-        Self::Dielectric { refraction_index }
-    }
-
     // returns true if valid scatter
     pub fn scatter(
         &self,
