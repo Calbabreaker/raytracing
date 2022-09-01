@@ -100,8 +100,8 @@ fn ray_color(objects: &[Object], ray: &mut Ray, max_bounces: u32) -> glam::Vec3A
             }
         } else {
             // add skybox light color
-            const SKYBOX_COLOR_TOP: glam::Vec3A = glam::const_vec3a!([0.5, 0.7, 1.0]);
-            const SKYBOX_COLOR_BOTTOM: glam::Vec3A = glam::const_vec3a!([1.0, 1.0, 1.0]);
+            const SKYBOX_COLOR_TOP: glam::Vec3A = glam::vec3a(0.5, 0.7, 1.0);
+            const SKYBOX_COLOR_BOTTOM: glam::Vec3A = glam::vec3a(1.0, 1.0, 1.0);
 
             let color_scale = (ray.direction.y + 1.0) / 2.0;
             attenuation *= SKYBOX_COLOR_BOTTOM.lerp(SKYBOX_COLOR_TOP, color_scale);
