@@ -33,10 +33,11 @@ pub struct Camera {
 
 impl Camera {
     pub fn new() -> Self {
-        let mut camera = Self::default();
-        camera.fov = 40.0;
-        camera.lookat = glam::Vec3A::X;
-        camera
+        Self {
+            fov: 40.,
+            lookat: glam::Vec3A::X,
+            ..Default::default()
+        }
     }
 
     pub fn update(&mut self) {

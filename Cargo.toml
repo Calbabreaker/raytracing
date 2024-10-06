@@ -5,10 +5,6 @@ edition = "2021"
 authors = ["Calbabreaker <calbabreaker@gmail.com>"]
 
 [dependencies]
-glam = "0.21.3"
-fastrand = "1.8.0"
-num_cpus = "1.13.1"
-image = { version = "0.24.3", default-features = false, features = ["png"] }
-
-[profile.release]
-debug = true
+glam = "0.29"
+fastrand = "2"
+image = { version = "0.25", default-features = false, features = ["png"] }

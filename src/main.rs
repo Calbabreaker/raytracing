@@ -16,7 +16,7 @@ fn main() {
 
     scene.camera.origin = glam::vec3a(-2.0, 2.0, 1.0);
     scene.camera.lookat = glam::vec3a(0.0, 0.0, -1.0);
-    scene.viewport_resize(1280, 720);
+    scene.viewport_resize(1920, 1080);
     scene.camera.update();
 
     scene.add_object(Object::Sphere {
